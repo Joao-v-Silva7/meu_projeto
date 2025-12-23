@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { UsersService } from './user.service';
 
 
@@ -13,7 +13,6 @@ export class UserController {
 
     @Post()
   async create(@Body() data: { name: string; age: number; email: string }) {
-    // Aqui chamamos o método que você acabou de adicionar no Service
-    return await this.usersService.create(data.name, data.age, data.email);
+    return await this.userService.create(data.name, data.age, data.email);
   }
 }
