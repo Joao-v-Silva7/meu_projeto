@@ -12,7 +12,13 @@ export class UserController {
     }
 
     @Post()
-  async create(@Body() data: { name: string; age: number; email: string }) {
-    return await this.userService.create(data.name, data.age, data.email);
+  async create(@Body() data: { name: string; age: number; email: string; password: string; }) {
+    console.log('Dados recebidos no Controller:', data);
+    return await this.userService.create(
+      data.name, 
+      data.age, 
+      data.email,
+      data.password
+    );
   }
 }
