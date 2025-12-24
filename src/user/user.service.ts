@@ -12,11 +12,13 @@ export class UsersService {
   async findAll() {
     return await this.db.query.usersTable.findMany();
   }
-  async create(name: string, age: number, email: string) {
+  async create(name: string, age: number, email: string, password: string) {
     return await this.db.insert(schema.usersTable).values({
         name,
         age,
         email,
+        password,
+
     });
     }
 }
