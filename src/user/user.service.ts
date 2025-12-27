@@ -18,7 +18,6 @@ export class UsersService {
         age,
         email,
         password,
-
     });
     }
 }
