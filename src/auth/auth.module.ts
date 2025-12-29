@@ -12,7 +12,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       secret: configService.get<string>('JWT_SECRET'),
       signOptions: {
         // O "+" converte a string do .env para número
-        expiresIn: +configService.get<number>('JWT_EXPIRATION_TIME')
+        expiresIn: +(configService.get<number>('JWT_EXPIRATION_TIME') || 3600)
       }
     }),
     inject: [ConfigService],

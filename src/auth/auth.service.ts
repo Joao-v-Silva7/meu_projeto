@@ -3,15 +3,20 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/user/user.service';
 import { AuthResponseDto } from './auth.dto';
 import { compareSync as bcryptCompareSync} from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
+    private jwtExpirationTimeInSeconds: number;
     constructor(
         private readonly usersService: UsersService,
-        private readonly jwtService: JwtService
-    ) {}
+        private readonly jwtService: JwtService,
+        private readonly configService: ConfigService
+    ) {
+        this.jwtExpirationTimeInSeconds = +(this.configService.get<number>('JWT_EXPIRATION_TIME') || 3600);
+    }
 
-    singIn(username: string, password: string): AuthResponseDto{
+    signIn(username: string, password: string): AuthResponseDto{
         const foundUser = this.usersService.findByUserName(username);
 
         //comparando se o usuario existe ou se a senha que está vindo bate com a senha certa
@@ -24,6 +29,6 @@ export class AuthService {
         //criando o token com o payload
         const token = this.jwtService.sign(payload);
 
-        
+        return {token, expireIn: this.jwtExpirationTimeInSeconds}        
     }
 }
