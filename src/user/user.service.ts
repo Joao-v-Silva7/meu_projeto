@@ -13,6 +13,9 @@ export class UsersService {
     newUser.id = uuid();
     newUser.password = bcryptHashSync(newUser.password, 10);
     this.user.push(newUser);
-    console.log(this.user)
+  }
+
+  findByUserName(username:string): UserDto | null {
+    return this.user.find(users => users.username === username);
   }
 }

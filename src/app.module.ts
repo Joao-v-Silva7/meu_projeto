@@ -9,7 +9,9 @@ import { AppService } from './app.service';
 
 
 @Module({
-  imports: [AuthModule, UserModule, DatabaseModule, ConfigModule, TaskModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    AuthModule, UserModule, DatabaseModule, TaskModule],
   controllers: [AppController],
   providers: [AppService]
 })
