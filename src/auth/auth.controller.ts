@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthResponseDto } from './auth.dto'
 
@@ -7,6 +7,7 @@ export class AuthController {
 
     constructor(private readonly authService: AuthService) {}
 
+    @HttpCode(HttpStatus.OK)// para alterar o status de retorno para 200 ok
     @Post('login')
     signIn(
         @Body('username') username: string,

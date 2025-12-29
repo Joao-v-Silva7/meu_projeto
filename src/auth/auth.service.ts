@@ -28,7 +28,8 @@ export class AuthService {
 
         //criando o token com o payload
         const token = this.jwtService.sign(payload);
+        console.log('token:...', token)
 
-        return {token, expireIn: this.jwtExpirationTimeInSeconds}        
+        return {token, expiresIn: this.jwtExpirationTimeInSeconds}        
     }
 }

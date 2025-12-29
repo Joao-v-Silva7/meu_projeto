@@ -3,6 +3,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [JwtModule.registerAsync({
@@ -12,11 +13,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       secret: configService.get<string>('JWT_SECRET'),
       signOptions: {
         // O "+" converte a string do .env para número
-        expiresIn: +(configService.get<number>('JWT_EXPIRATION_TIME') || 3600)
+        expiresIn: +(configService.get<number>('JWT_EXPIRATION_TIME') ?? 3600)
       }
     }),
     inject: [ConfigService],
-  })],
+  }), UserModule],
   controllers: [AuthController],
   providers: [AuthService]
 })
