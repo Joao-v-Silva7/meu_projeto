@@ -10,9 +10,9 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)// para alterar o status de retorno para 200 ok
     @Post('login')
     signIn(
-        @Body('username') username: string,
+        @Body('email') email: string,
         @Body('password') password: string
-    ): AuthResponseDto {
-        return this.authService.signIn(username, password);
+    ): Promise<AuthResponseDto> {
+        return this.authService.signIn(email, password);
     }
 }

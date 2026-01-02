@@ -17,7 +17,7 @@ export const questionsTable = mysqlTable('questions', {
   body: text('body').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
-  userId: varchar('user_id', { length: 255 })
+  userId: int('user_id')
     .notNull()
     .references(() => usersTable.id, { onDelete: 'cascade' }),
 });

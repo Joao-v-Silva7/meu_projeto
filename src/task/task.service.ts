@@ -1,64 +1,73 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { FindAllParameters, TaskDto, TaskStatusEnum } from './task.dto';
+import {DRIZZLE} from '../database/database.module';
+import { MySql2Database } from 'drizzle-orm/mysql2';
+import * as schema from '../db/schema';
+import { eq, like, and, SQL } from 'drizzle-orm';
 import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class TaskService {
+    constructor(
+        @Inject(DRIZZLE) private readonly db: MySql2Database<typeof schema> 
+    ) {}
 
-    private tasks: TaskDto[] = [];
-
-    create(task: TaskDto) {
-        task.id = uuid();
-        task.status = TaskStatusEnum.TO_DO
-        this.tasks.push(task);
-    }
-
-    findById(id: string): TaskDto {
-        const foundTask = this.tasks.filter(t => t.id === id);
-
-        if(foundTask.length){
-            return foundTask[0]
-        }
-
-        throw new HttpException(`Task with id ${id} not found`, HttpStatus.NOT_FOUND);
-    }
-
-    findAll(params: FindAllParameters): TaskDto[]{
-        return this.tasks.filter(t=> {
-            let match = true;
-
-            if(params.title != undefined && !t.tittle.includes(params.title)){
-                match = false
-            }
-
-            if(params.status != undefined && !t.status.includes(params.status)){
-                match = false
-            }
-
-            return match;
+    async create(task: TaskDto, userId: number) {
+       const taskId = uuid();
+        await this.db.insert(schema.questionsTable).values({
+            id: taskId,
+            title: task.tittle,
+            body: task.description,
+            userId: userId,
         })
+        return { id: taskId }
     }
 
-    update(task: TaskDto){
-        let taskIndex = this.tasks.findIndex(t=> t.id === task.id);
+    async findById(id: string) {
+        const result = await this.db
+        .select()
+        .from(schema.questionsTable)
+        .where(eq(schema.questionsTable.id, id))
+        .limit(1);
+
+        if(!result.length){
+            throw new HttpException(`Task with id ${id} not found`, HttpStatus.NOT_FOUND);
+        }
+
+        return result[0];
+    }
+
+    async findAll(params: FindAllParameters){
+            const filters: SQL[] = []; 
+
+            if(params.title){
+                filters.push(like(schema.questionsTable.title, `%${params.title}`));
+            }
+
+            return await this.db
+            .select()
+            .from(schema.questionsTable)
+            .where(and(...filters))
+
+    }
+
+    async update(id: string, task: Partial<TaskDto>){
+        await this.findById(id); // Garante que existe
         
-        //pegando o index da task encontrada e reatribuindo o valor
-        if(taskIndex >= 0){
-            this.tasks[taskIndex] = task
-            return;
-        }
+        await this.db
+        .update(schema.questionsTable)
+        .set({
+            title: task.tittle,
+            body: task.description,
+            updatedAt: new Date(),
+        })
+        .where(eq(schema.questionsTable.id, id));
 
-        throw new HttpException(`Task with id ${task.id} not found`, HttpStatus.BAD_REQUEST);
     }
 
-    remove(id: string){
-        let taskIndex = this.tasks.findIndex(t => t.id === id);
-
-        if(taskIndex >= 0){
-            this.tasks.splice(taskIndex, 1); //splice separa ou remove itens de um array, no 1 estou passando a posição
-            return;
-        }
-
-        throw new HttpException(`Task with id ${id} not found`, HttpStatus.BAD_REQUEST)
-    }
+    async remove(id: string){
+        await this.findById(id);
+        await this.db.delete(schema.questionsTable)
+        .where(eq(schema.questionsTable.id, id));
+}
 }

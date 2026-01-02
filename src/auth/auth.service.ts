@@ -16,15 +16,15 @@ export class AuthService {
         this.jwtExpirationTimeInSeconds = +(this.configService.get<number>('JWT_EXPIRATION_TIME') || 3600);
     }
 
-    signIn(username: string, password: string): AuthResponseDto{
-        const foundUser = this.usersService.findByUserName(username);
+    async signIn(email: string, password: string): Promise<AuthResponseDto>{
+        const foundUser = await this.usersService.findByEmail(email);
 
         //comparando se o usuario existe ou se a senha que está vindo bate com a senha certa
         if (!foundUser || !bcryptCompareSync(password, foundUser.password)) {
             throw new UnauthorizedException();
         }
 
-        const payload = { sub: foundUser.id, username: foundUser.username}
+        const payload = { sub: foundUser.id, name: foundUser.name, email: foundUser.email };
 
         //criando o token com o payload
         const token = this.jwtService.sign(payload);
